@@ -1,0 +1,256 @@
+#! /bin/sh
+
+# Arrêter le script après une erreur.
+set -e
+
+#############
+# Variables #
+#############
+
+# Ces variables peuvent être override par l'utilisateur
+quiet=${quiet:-0}
+format=${format:-"pdf"}
+
+# constantes
+typst_src_dir="drafts"
+
+if ! [ -d $typst_src_dir ]; then
+	mkdir $typst_src_dir
+fi
+
+if ! [ -d content/ ]; then
+	mkdir content
+fi
+
+
+#########################
+# Couleurs et affichage #
+#########################
+
+blue="\033[34m"
+green="\033[32m"
+yellow="\033[33m"
+red="\033[31m"
+no_color="\033[0m"
+
+colored_output() {
+	color_name=$1
+	shift
+	case $color_name in
+		blue)
+			color=$blue;;
+		green)
+			color=$green;;
+		yellow)
+			color=$yellow;;
+		red)
+			color=$red;;
+		*)
+			color=$no_color;;
+	esac
+
+	printf "${color}$@${no_color}\n"
+}
+
+helper_log() {
+
+	if [ $quiet -gt 0 ]; then
+		exit 0
+	fi
+
+	log_request=$1
+	shift
+	case $log_request in
+		info)
+			log_level=$(colored_output blue INFO);;
+		success)
+			log_level=$(colored_output green SUCCESS);;
+		warn)
+			log_level=$(colored_output yellow WARNING);;
+		testing)
+			log_level=$(colored_output yellow TEST);;
+		err)
+			log_level=$(colored_output red ERROR);;
+		fail)
+			log_level=$(colored_output red FAILED);;
+		*)
+			log_level=?
+	esac
+
+	if [ $log_level != "FAILED" ] && [ $log_level != "ERROR" ]; then
+		printf "[$log_level] $@\n"
+	else
+		printf "[$log_level] $@\n >&2"
+	fi
+}
+
+##############
+# texte help #
+##############
+
+display_help() {
+ echo "
+Utilisation:
+
+	helper COMMANDE
+
+	ou
+
+	helper
+	> COMMANDE
+	> COMMANDE
+	> quit
+
+
+Commandes:
+
+	help
+		Affiche ce message.
+
+	quit
+		Quitte helper.
+
+	check
+		Vérifie que toutes les dépendances de helper sont installées.
+
+	sync
+		Met à jour le contenu de 'l2', alternativement, utilisez 'git pull'
+
+	build
+		Compile les fichiers typst en pdf.
+		Autres formats possibles voir 'Variables Utilisateur'.
+
+	clean
+		Supprime tout les fichiers typst compilés.
+
+
+Variables utilisateur:
+
+	quiet
+		Désactivez la sortie standard et erreur du programme avec :
+		quiet=1 ./helper COMMANDE
+
+	format
+		Vous pouvez modifier le format ciblé par une commande de helper.
+		Exemple : format=png ./helper build va compiler les fichiers en png.
+		Valeurs possibles : pdf, png, svg
+"
+}
+
+###########################################
+# Fonctions que je saurais pas classifier #
+###########################################
+
+greet_user() {
+	hour=$(date +%H)
+
+	if [ "$hour" -ge 6 ] && [ "$hour" -lt 18 ]; then
+		greet="Bonjour"
+	else
+		greet="Bonsoir"
+	fi
+
+	helper_log info "$greet $(whoami)"
+}
+
+unknown_cmd() {
+	echo "Je comprends pas ta requête. Renseignes toi avec './helper help'"
+}
+
+eval_input() {
+	case $1 in
+		help)display_help;;
+		quit)echo "bye $(whoami) ♥" ; exit 0;;
+		check)check;;
+		sync)sync;;
+		build)build;;
+		clean)clean;;
+		*)unknown_cmd;;
+	esac
+}
+
+##############################
+# Fonctions de l'utilisateur #
+##############################
+
+check() {
+	helper_log testing "Vérifications des dépendances."
+	git -v > /dev/null 2>&1 || (helper_log fail "La dépendance git n'est pas installé !" && exit 1)
+	typst --version > /dev/null 2>&1 || (helper_log fail "La dépendance typst n'est pas installé !" && exit 1)
+	helper_log success "Toutes les dépendances sont satisfaites."
+}
+
+sync() {
+	helper_log info "Mise à jour du dépôt via git"
+	git pull
+}
+
+build() {
+	typ_files="$(find $typst_src_dir -name "*.typ")"
+
+	compiled=0
+
+	for file in $typ_files; do
+		target_dir="content/$(basename $(dirname $file))/CM"
+
+		if ! [ -d $target_dir ]; then
+			mkdir -p $target_dir
+		fi
+
+		target_path="$target_dir/$(basename $file | awk -F '.' '{print $1}').$format"
+
+		if [ -f $target_path ]; then
+			helper_log warn "Le fichier $file est déjà compilé sur $target_path, annulation."
+		else
+			helper_log info "Compilation de $file dans $target_path"
+			typst compile $file $target_path
+			if [ -f $target_path ]; then
+				helper_log success "Compilation de $file dans $target_path réussie."
+				compiled=$(expr $compiled + 1)
+			else
+				helper_log fail "La compilation de $file dans $target_path a échouée."
+			fi
+		fi
+	done
+
+	helper_log info "Trouvés : $(echo "$typ_files" | wc -l) fichiers typst."
+	helper_log info "Compilés : $compiled fichiers $format."
+}
+
+clean() {
+	build_files="$(find content/ -name "*.$format")"
+
+	deleted=0
+
+	for file in $build_files; do
+		helper_log info "Suppression de $file"
+		rm $file
+		if ! [ -f $file ]; then
+			helper_log success "Supression de $file réussie."
+			deleted=$(expr $deleted + 1)
+		else
+			helper_log fail "La suppression de $file a échouée."
+		fi
+	done
+
+
+	helper_log info "Trouvés : $(echo "$build_files" | wc -l) fichiers typst."
+	helper_log info "Supprimés: $deleted fichiers $format."
+}
+
+########
+# MAIN #
+########
+
+if [ $# -eq 0 ]; then
+	greet_user
+	while true; do
+		echo -n "> "
+		read user_input
+		eval_input $user_input
+	done
+elif [ $# -eq 1 ]; then
+	eval_input $1
+else
+	unknown_cmd
+fi
