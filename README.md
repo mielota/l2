@@ -33,6 +33,11 @@ Référez vous au script helper pour compiler les fichiers typst en le format so
 ./helper help
 ```
 
+Soyez sûrs d'avoir les dépendances nécessaires avec :
+```sh
+./helper check
+```
+
 Le contenu des cours se situe dans le répertoire content/.
 Le dossier drafts/ est à ignorer, il est géré par moi et l'outil helper.
 

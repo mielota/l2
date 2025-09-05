@@ -3,9 +3,8 @@
 # Ces variables peuvent être override par l'utilisateur
 quiet=${quiet:-0}
 format=${format:-"pdf"}
-
-# constantes
-typst_src_dir="drafts"
+typst_src_dir=${typst_src_dir:-"drafts"}
+typst_output_dir=${typst_output_dir:-"content"}
 
 blue="\033[34m"
 green="\033[32m"
@@ -159,7 +158,7 @@ build() {
 	compiled=0
 
 	for file in $typ_files; do
-		target_path=$(echo $file | sed "s/drafts/content/g; s/\.typ$/."$format"/g")
+		target_path=$(echo $file | sed "s/drafts/"$typst_output_dir"/g; s/\.typ$/."$format"/g")
 		target_dir=$(dirname $target_path)
 
 		if ! [ -d $target_dir ]; then
@@ -185,7 +184,7 @@ build() {
 }
 
 clean() {
-	build_files="$(find content/ -name "*.$format")"
+	build_files="$(find $typst_output_dir -name "*.$format")"
 
 	deleted=0
 
@@ -208,8 +207,8 @@ if ! [ -d $typst_src_dir ]; then
 	mkdir $typst_src_dir
 fi
 
-if ! [ -d content/ ]; then
-	mkdir content
+if ! [ -d $typst_output_dir ]; then
+	mkdir $typst_output_dir
 fi
 
 empty_dirs="$(find content/ -type d -empty -not -path "content/")"
