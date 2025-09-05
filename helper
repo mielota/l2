@@ -1,31 +1,11 @@
 #! /bin/sh
 
-# Arrêter le script après une erreur.
-set -e
-
-#############
-# Variables #
-#############
-
 # Ces variables peuvent être override par l'utilisateur
 quiet=${quiet:-0}
 format=${format:-"pdf"}
 
 # constantes
 typst_src_dir="drafts"
-
-if ! [ -d $typst_src_dir ]; then
-	mkdir $typst_src_dir
-fi
-
-if ! [ -d content/ ]; then
-	mkdir content
-fi
-
-
-#########################
-# Couleurs et affichage #
-#########################
 
 blue="\033[34m"
 green="\033[32m"
@@ -84,10 +64,6 @@ helper_log() {
 	fi
 }
 
-##############
-# texte help #
-##############
-
 display_help() {
  echo "
 Utilisation:
@@ -137,10 +113,6 @@ Variables utilisateur:
 "
 }
 
-###########################################
-# Fonctions que je saurais pas classifier #
-###########################################
-
 greet_user() {
 	hour=$(date +%H)
 
@@ -169,10 +141,6 @@ eval_input() {
 	esac
 }
 
-##############################
-# Fonctions de l'utilisateur #
-##############################
-
 check() {
 	helper_log testing "Vérifications des dépendances."
 	git -v > /dev/null 2>&1 || (helper_log fail "La dépendance git n'est pas installé !" && exit 1)
@@ -191,13 +159,12 @@ build() {
 	compiled=0
 
 	for file in $typ_files; do
-		target_dir="content/$(basename $(dirname $file))/CM"
+		target_path=$(echo $file | sed "s/drafts/content/g; s/\.typ$/."$format"/g")
+		target_dir=$(dirname $target_path)
 
 		if ! [ -d $target_dir ]; then
 			mkdir -p $target_dir
 		fi
-
-		target_path="$target_dir/$(basename $file | awk -F '.' '{print $1}').$format"
 
 		if [ -f $target_path ]; then
 			helper_log warn "Le fichier $file est déjà compilé sur $target_path, annulation."
@@ -226,21 +193,36 @@ clean() {
 		helper_log info "Suppression de $file"
 		rm $file
 		if ! [ -f $file ]; then
-			helper_log success "Supression de $file réussie."
+			helper_log success "Suppression de $file réussie."
 			deleted=$(expr $deleted + 1)
 		else
 			helper_log fail "La suppression de $file a échouée."
 		fi
 	done
 
-
 	helper_log info "Trouvés : $(echo "$build_files" | wc -l) fichiers typst."
 	helper_log info "Supprimés: $deleted fichiers $format."
 }
 
-########
-# MAIN #
-########
+if ! [ -d $typst_src_dir ]; then
+	mkdir $typst_src_dir
+fi
+
+if ! [ -d content/ ]; then
+	mkdir content
+fi
+
+empty_dirs="$(find . -type d -empty -not -path "*/.git/*")"
+
+if [ -n "$empty_dirs" ]; then
+	helper_log warn "$(echo "$empty_dirs" | wc -l) dossier(s) vide(s) a/ont été trouvé(s)."
+	helper_log info "Suppression de ce(s) dossier(s)."
+
+	for dir in $empty_dirs; do
+		helper_log info "Suppression de $dir"
+		rmdir $dir && helper_log success "Suppression de $dir réussie." || helper_log fail "$dir n'a pas pu être supprimé."
+	done
+fi
 
 if [ $# -eq 0 ]; then
 	greet_user
