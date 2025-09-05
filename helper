@@ -212,7 +212,7 @@ if ! [ -d content/ ]; then
 	mkdir content
 fi
 
-empty_dirs="$(find . -type d -empty -not -path "*/.git/*")"
+empty_dirs="$(find content/ -type d -empty -not -path "content/")"
 
 if [ -n "$empty_dirs" ]; then
 	helper_log warn "$(echo "$empty_dirs" | wc -l) dossier(s) vide(s) a/ont été trouvé(s)."
