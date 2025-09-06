@@ -40,7 +40,7 @@ colored_output() {
 helper_log() {
 
 	if [ $quiet -gt 0 ]; then
-		exit 0
+		return 0
 	fi
 
 	log_request=$1
@@ -174,7 +174,7 @@ build() {
 	compiled=0
 
 	for file in $typ_files; do
-		target_path=$(echo $file | sed "s/drafts/"$typst_output_dir"/g; s/\.typ$/."$format"/g")
+		target_path=$(echo $file | sed "s/"$typst_src_dir"/"$typst_output_dir"/g; s/\.typ$/."$format"/g")
 		target_dir=$(dirname $target_path)
 
 		if ! [ -d $target_dir ]; then
@@ -217,6 +217,21 @@ clean() {
 
 	helper_log info "Trouvés : $(echo "$build_files" | wc -l) fichiers typst."
 	helper_log info "Supprimés: $deleted fichiers $format."
+
+	empty_dirs="$(find . -type d -empty -not -path "*/.git/*")"
+
+	while [ "$empty_dirs" != "" ]; do
+		if [ -n "$empty_dirs" ]; then
+			helper_log warn "$(echo "$empty_dirs" | wc -l) dossier(s) vide(s) a/ont été trouvé(s)."
+			helper_log info "Suppression de ce(s) dossier(s)."
+
+			for dir in $empty_dirs; do
+				helper_log info "Suppression de $dir"
+				rmdir $dir && helper_log success "Suppression de $dir réussie." || helper_log fail "$dir n'a pas pu être supprimé."
+			done
+		fi
+		empty_dirs="$(find . -type d -empty -not -path "*/.git/*")"
+	done
 }
 
 if ! [ -d $typst_src_dir ]; then
@@ -225,18 +240,6 @@ fi
 
 if ! [ -d $typst_output_dir ]; then
 	mkdir $typst_output_dir
-fi
-
-empty_dirs="$(find content/ -type d -empty -not -path "content/")"
-
-if [ -n "$empty_dirs" ]; then
-	helper_log warn "$(echo "$empty_dirs" | wc -l) dossier(s) vide(s) a/ont été trouvé(s)."
-	helper_log info "Suppression de ce(s) dossier(s)."
-
-	for dir in $empty_dirs; do
-		helper_log info "Suppression de $dir"
-		rmdir $dir && helper_log success "Suppression de $dir réussie." || helper_log fail "$dir n'a pas pu être supprimé."
-	done
 fi
 
 if [ $# -eq 0 ]; then
