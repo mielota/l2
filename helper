@@ -7,7 +7,9 @@ typst_src_dir=${typst_src_dir:-"drafts"}
 typst_output_dir=${typst_output_dir:-"content"}
 
 blue="\033[34m"
+bold_blue="\033[1;34m"
 green="\033[32m"
+bold_green="\033[1;32m"
 yellow="\033[33m"
 red="\033[31m"
 no_color="\033[0m"
@@ -18,8 +20,12 @@ colored_output() {
 	case $color_name in
 		blue)
 			color=$blue;;
+		bold_blue)
+			color=$bold_blue;;
 		green)
 			color=$green;;
+		bold_green)
+			color=$bold_green;;
 		yellow)
 			color=$yellow;;
 		red)
@@ -64,51 +70,61 @@ helper_log() {
 }
 
 display_help() {
- echo "
-Utilisation:
+ echo -e "
+$(colored_output bold_green "Utilisation:")
 
-	helper COMMANDE
+	$(colored_output bold_blue "helper") COMMANDE
 
 	ou
 
-	helper
+	$(colored_output bold_blue "helper")
 	> COMMANDE
 	> COMMANDE
 	> quit
 
 
-Commandes:
+$(colored_output bold_green "Commandes:")
 
-	help
+	$(colored_output bold_blue "help")
 		Affiche ce message.
 
-	quit
+	$(colored_output bold_blue "quit")
 		Quitte helper.
 
-	check
+	$(colored_output bold_blue "check")
 		Vérifie que toutes les dépendances de helper sont installées.
 
-	sync
+	$(colored_output bold_blue "sync")
 		Met à jour le contenu de 'l2', alternativement, utilisez 'git pull'
 
-	build
+	$(colored_output bold_blue "build")
 		Compile les fichiers typst en pdf.
 		Autres formats possibles voir 'Variables Utilisateur'.
 
-	clean
+	$(colored_output bold_blue "clean")
 		Supprime tout les fichiers typst compilés.
 
 
-Variables utilisateur:
+$(colored_output bold_green "Variables utilisateurs:")
 
-	quiet
+	$(colored_output bold_blue "quiet")
 		Désactivez la sortie standard et erreur du programme avec :
 		quiet=1 ./helper COMMANDE
+		valeur par défaut : 0
 
-	format
+	$(colored_output bold_blue "format")
 		Vous pouvez modifier le format ciblé par une commande de helper.
 		Exemple : format=png ./helper build va compiler les fichiers en png.
 		Valeurs possibles : pdf, png, svg
+		valeur par défaut : pdf
+
+	$(colored_output bold_blue "typst_src_dir")
+		Dossier contenant le code typst à compiler.
+		valeur par défaut : drafts
+
+	$(colored_output bold_blue "typst_output_dir")
+		Dossier qui va contenir le/les futur(s) fichiers typst compilés.
+		valeur par défaut : content
 "
 }
 
