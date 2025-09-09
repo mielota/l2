@@ -3,7 +3,7 @@
 ]
 
 #align(center)[
-  = AAL3
+  = AAL3 - CM1
 ]
 
 \
@@ -49,17 +49,9 @@ Par exemple :
 $|w|_a $ est le nombre d'occurrences de $ a(a in Sigma)$ dans $w$
 
 \
-\
-\
-\
-\
-\
-\
-\
-\
 
 ==== Concaténation
-$ v dot w ->$ exemple $"ab" dot "bba" = "abbba" $\
+$ v dot w ->$ exemple $ a b dot b b a = a b b b a $\
 $ epsilon dot w = w$
 
 Attention, notez que la concaténation n'est pas commutative.
@@ -87,23 +79,23 @@ Un langage sur $Sigma$ est une partie (sous-ensemble) de $Sigma^*$
 
 $ Sigma = {a, b} $
 $ L_1 = {w in Sigma^*} $
-$ L_2 = {"ab", "abba", "baab"} $
-$ L_3 = {w in Sigma^* | "aba est facteur de" w} $
+$ L_2 = {a b, a b b a, b a a b} $
+$ L_3 = {w in Sigma^* | a b a "est facteur de" w} $
 $ L_4 = nothing $
 
 \
 
 La concaténation des deux langages :
 $ L_1 dot L_2 = {w_1 dot w_2 | w_1 in L_1, w_2 in L_2} $
-$ {"a", "aa"} dot {"b", "bb"} = {"ab", "abb", "aab", "aabb"} $
-$ {"a", epsilon } dot {"b", "bb"} = {"ab", "abb", "b", "bb"} $
-$ {"a", "aa"} dot {"a", "aa"} = {"aa", "aaa", "aaaa"} $
+$ {a, a a} dot {b, b b} = {a b, a b b, a a b, a a b b } $
+$ {a, epsilon } dot {b, b b} = {a b, a b b, b, b b} $
+$ {a, a a} dot {a, a a} = {a a, a a a, a a a a} $
 $ {epsilon dot L = L} $
 $ nothing dot L = nothing $
 
 Ne pas confondre ${epsilon}$ avec $nothing$.
 
-Si $n in NN_0 : L^n = L dot ... dot L -> "Exemple :" {"aa", "bb"}^3 "contient aabbaa"$
+Si $n in NN_0 : L^n = L dot ... dot L -> "Exemple :" {a a, b b}^3 "contient" a a b b a a$
 
 ==== Opérations ensemblistes :
 - $L_1 union L_2$
@@ -118,7 +110,7 @@ Si $n in NN_0 : L^n = L dot ... dot L -> "Exemple :" {"aa", "bb"}^3 "contient aa
 Prenons $Sigma = {a, b}$
 
 #align(center)[
-#table(columns: 2)[Expression $e$][Sémantique de $e : L(e)$][ab][{ab}][ab $+$ bb $+$ a][{ab, bb, a}][a$("b"+"a")$][{ab, aa}][$"a"^*$][{$epsilon$, a, aa, aaa, aaaa, ...}][$("a" dot ("b" + "bb"))^*$][{$epsilon$, ab, abb, abab, ababb, abbab, abbabb, ...}]
+#table(columns: 2)[Expression $e$][Sémantique de $e : L(e)$][$a b$][${a b}$][$a b + b b + a$][${a b, b b, a}$][$a(b+a)$][${a b, a a}$][$a^*$][${epsilon, a, a a, a a a, a a a a, ...}$][$(a dot (b + b b))^*$][${epsilon, a b, a b b, a b a b, a b a b b, a b b a b, a b b a b b, ...}$]
 ]
 \
 ==== Définition de la syntaxe
