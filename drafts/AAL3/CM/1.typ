@@ -24,8 +24,7 @@ C'est l'analyse d'un langage qui est un ensemble de plusieurs mots.
 Ici on va par exemple étudier les composants d'un compilateurs, par exemple le parser qui va lire les "phrases" du fichier qui va les découper en "unité lexicale".
 
 \
-#underline()[== Chapitre 1]
-#underline()[=== I. Mots et langages]
+#underline()[== I. Mots et langages]
 \
 Définition : Alphabet : Un ensemble fini de symboles.
 Pour noter l'ensemble d'un alphabet on écrit par exemple :
@@ -50,7 +49,7 @@ $|w|_a $ est le nombre d'occurrences de $ a(a in Sigma)$ dans $w$
 
 \
 
-==== Concaténation
+=== Concaténation
 $ v dot w ->$ exemple $ a b dot b b a = a b b b a $\
 $ epsilon dot w = w$
 
@@ -61,7 +60,7 @@ $ u dot (v dot w) = (u dot v) dot w $
 $ w^n = w times w times ... "n fois" $
 $ n in NN_0 |v dot w| = |v| + |w| $
 
-==== Relations entre les mots
+=== Relations entre les mots
 - $ v$ est un préfixe de $w$ si il existe $u$ tel que $w = v dot u$
 - $v$ est un préfixe de $v$
 - $epsilon$ est préfixe de tout $w in Sigma^*$ un mot de longueur n $a^(n+1)$ préfixes.
@@ -73,7 +72,7 @@ $ n in NN_0 |v dot w| = |v| + |w| $
 - abc est un sous mot de aabaabcab
 \
 
-==== Langages
+=== Langages
 
 Un langage sur $Sigma$ est une partie (sous-ensemble) de $Sigma^*$
 
@@ -97,7 +96,7 @@ Ne pas confondre ${epsilon}$ avec $nothing$.
 
 Si $n in NN_0 : L^n = L dot ... dot L -> "Exemple :" {a a, b b}^3 "contient" a a b b a a$
 
-==== Opérations ensemblistes :
+=== Opérations ensemblistes :
 - $L_1 union L_2$
 - $L_1 inter L_2$
 - $L^("comp")$ complément par rapport à $Sigma^* : Sigma^* - L$
@@ -106,14 +105,14 @@ Si $n in NN_0 : L^n = L dot ... dot L -> "Exemple :" {a a, b b}^3 "contient" a a
 - $L^* = "UL"^i = L^0_u L^1_u L^2_u L^2_u$
 \
 
-#underline()[=== II. Expressions Rationnelles]
+#underline()[== II. Expressions Rationnelles]
 Prenons $Sigma = {a, b}$
 
 #align(center)[
 #table(columns: 2)[Expression $e$][Sémantique de $e : L(e)$][$a b$][${a b}$][$a b + b b + a$][${a b, b b, a}$][$a(b+a)$][${a b, a a}$][$a^*$][${epsilon, a, a a, a a a, a a a a, ...}$][$(a dot (b + b b))^*$][${epsilon, a b, a b b, a b a b, a b a b b, a b b a b, a b b a b b, ...}$]
 ]
 \
-==== Définition de la syntaxe
+=== Définition de la syntaxe
 
 L'ensemble ExpRat (expression rationnelle) est le plus petit ensemble tel que :
 - si $a in Sigma,$ alors $a in$ ExpRat
@@ -124,7 +123,7 @@ L'ensemble ExpRat (expression rationnelle) est le plus petit ensemble tel que :
 - si $r in "ExpRat, alors" r^* in$ ExpRat
 
 \
-==== Définition de la sémantique
+=== Définition de la sémantique
 - $L(a) = {a}$
 - $L(epsilon) = {epsilon}$
 - $L(nothing) = {nothing}$
